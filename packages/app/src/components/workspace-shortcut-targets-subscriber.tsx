@@ -3,9 +3,12 @@ import { useSidebarModel } from "@/components/sidebar/sidebar-model";
 import { useKeyboardShortcutsStore } from "@/stores/keyboard-shortcuts-store";
 
 export function WorkspaceShortcutTargetsSubscriber({ enabled }: { enabled: boolean }) {
-  const { shortcutModel } = useSidebarModel();
+  const { shortcutModel, attentionQueue } = useSidebarModel();
   const setSidebarShortcutWorkspaceTargets = useKeyboardShortcutsStore(
     (state) => state.setSidebarShortcutWorkspaceTargets,
+  );
+  const setSidebarAttentionWorkspaceTargets = useKeyboardShortcutsStore(
+    (state) => state.setSidebarAttentionWorkspaceTargets,
   );
 
   useEffect(() => {
@@ -18,10 +21,20 @@ export function WorkspaceShortcutTargetsSubscriber({ enabled }: { enabled: boole
   }, [enabled, setSidebarShortcutWorkspaceTargets, shortcutModel.shortcutTargets]);
 
   useEffect(() => {
+    if (!enabled) {
+      setSidebarAttentionWorkspaceTargets([]);
+      return;
+    }
+
+    setSidebarAttentionWorkspaceTargets(attentionQueue);
+  }, [attentionQueue, enabled, setSidebarAttentionWorkspaceTargets]);
+
+  useEffect(() => {
     return () => {
       setSidebarShortcutWorkspaceTargets([]);
+      setSidebarAttentionWorkspaceTargets([]);
     };
-  }, [setSidebarShortcutWorkspaceTargets]);
+  }, [setSidebarAttentionWorkspaceTargets, setSidebarShortcutWorkspaceTargets]);
 
   return null;
 }

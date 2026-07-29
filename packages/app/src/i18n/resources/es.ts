@@ -897,6 +897,11 @@ export const es: TranslationResources = {
       },
     },
   },
+  shortcuts: {
+    attention: {
+      none: "Ningún espacio de trabajo necesita atención",
+    },
+  },
   sidebar: {
     pinned: {
       title: "Anclados",
@@ -1853,6 +1858,8 @@ export const es: TranslationResources = {
         jumpToTab: "Saltar a la pestaña",
         previousWorkspace: "Espacio de trabajo anterior",
         nextWorkspace: "Siguiente espacio de trabajo",
+        previousAttentionWorkspace: "Espacio de trabajo anterior que necesita atención",
+        nextAttentionWorkspace: "Siguiente espacio de trabajo que necesita atención",
         previousTab: "Pestaña anterior",
         nextTab: "Pestaña siguiente",
         splitPaneRight: "Panel dividido a la derecha",

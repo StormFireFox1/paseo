@@ -888,6 +888,11 @@ export const ptBR: TranslationResources = {
       },
     },
   },
+  shortcuts: {
+    attention: {
+      none: "Nenhum workspace precisa de atenção",
+    },
+  },
   sidebar: {
     pinned: {
       title: "Fixados",
@@ -1836,6 +1841,8 @@ export const ptBR: TranslationResources = {
         jumpToTab: "Ir para aba",
         previousWorkspace: "Workspace anterior",
         nextWorkspace: "Próximo workspace",
+        previousAttentionWorkspace: "Workspace anterior que precisa de atenção",
+        nextAttentionWorkspace: "Próximo workspace que precisa de atenção",
         previousTab: "Aba anterior",
         nextTab: "Próxima aba",
         splitPaneRight: "Dividir painel à direita",

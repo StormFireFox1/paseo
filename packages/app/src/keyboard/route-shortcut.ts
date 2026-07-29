@@ -1,6 +1,7 @@
 import type { KeyboardShortcutPayload, MessageInputKeyboardActionKind } from "@/keyboard/actions";
 import type { KeyboardActionDefinition } from "@/keyboard/keyboard-action-dispatcher";
 import { buildSettingsRoute, parseHostWorkspaceRouteFromPathname } from "@/utils/host-routes";
+import { getNextAttentionTarget } from "@/utils/sidebar-attention-navigation";
 import {
   getRelativeSidebarShortcutTarget,
   type SidebarShortcutWorkspaceTarget,
@@ -10,6 +11,7 @@ export interface ShortcutRoutingContext {
   pathname: string;
   isMobile: boolean;
   sidebarShortcutTargets: ReadonlyArray<SidebarShortcutWorkspaceTarget>;
+  sidebarAttentionTargets: ReadonlyArray<SidebarShortcutWorkspaceTarget>;
   navigationActiveWorkspace: SidebarShortcutWorkspaceTarget | null;
   commandCenterOpen: boolean;
   shortcutsDialogOpen: boolean;
@@ -33,7 +35,8 @@ export type ShortcutAction =
   | { kind: "open-project-picker" }
   | { kind: "callback"; name: ShortcutCallbackName }
   | { kind: "command-center-toggle"; nextOpen: boolean }
-  | { kind: "shortcuts-dialog-toggle"; nextOpen: boolean };
+  | { kind: "shortcuts-dialog-toggle"; nextOpen: boolean }
+  | { kind: "show-toast"; messageKey: string; variant: "info" };
 
 const NONE: ShortcutAction = { kind: "none" };
 
@@ -150,6 +153,31 @@ function routeWorkspaceNavigateRelative(
   };
 }
 
+function routeWorkspaceNavigateAttention(
+  payload: KeyboardShortcutPayload,
+  ctx: ShortcutRoutingContext,
+): ShortcutAction {
+  if (!hasPayloadKey(payload, "delta")) return NONE;
+
+  const currentWorkspace =
+    ctx.navigationActiveWorkspace ?? parseHostWorkspaceRouteFromPathname(ctx.pathname);
+  const target = getNextAttentionTarget({
+    queue: ctx.sidebarAttentionTargets,
+    currentTarget: currentWorkspace
+      ? { serverId: currentWorkspace.serverId, workspaceId: currentWorkspace.workspaceId }
+      : null,
+    delta: payload.delta,
+  });
+  if (!target) {
+    return { kind: "show-toast", messageKey: "shortcuts.attention.none", variant: "info" };
+  }
+  return {
+    kind: "navigate-workspace",
+    serverId: target.serverId,
+    workspaceId: target.workspaceId,
+  };
+}
+
 function routeMessageInputAction(payload: KeyboardShortcutPayload): ShortcutAction {
   if (!hasPayloadKey(payload, "kind")) return NONE;
   const action = MESSAGE_INPUT_DISPATCH[payload.kind];
@@ -190,6 +218,8 @@ export function routeKeyboardShortcut(
       return routeWorkspaceNavigateIndex(input.payload, ctx);
     case "workspace.navigate.relative":
       return routeWorkspaceNavigateRelative(input.payload, ctx);
+    case "workspace.navigate.attention":
+      return routeWorkspaceNavigateAttention(input.payload, ctx);
     case "message-input.action":
       return routeMessageInputAction(input.payload);
     case "agent.new":

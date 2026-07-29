@@ -26,6 +26,8 @@ import {
   type ShortcutCallbackName,
 } from "@/keyboard/route-shortcut";
 import { getShortcutOs } from "@/utils/shortcut-platform";
+import { useToast } from "@/contexts/toast-context";
+import { useTranslation } from "react-i18next";
 import { useOpenAddProject } from "@/hooks/use-open-add-project";
 import { useKeyboardShortcutOverrides } from "@/hooks/use-keyboard-shortcut-overrides";
 import { isNative } from "@/constants/platform";
@@ -63,6 +65,14 @@ export function useKeyboardShortcuts({
     timeoutId: null,
   });
   const openProjectPickerAction = useOpenAddProject();
+  // The keydown listener effect must not re-subscribe when the toast api or
+  // translator identity changes, so both are read through refs.
+  const toast = useToast();
+  const { t } = useTranslation();
+  const toastRef = useRef(toast);
+  toastRef.current = toast;
+  const translateRef = useRef(t);
+  translateRef.current = t;
   const activeWorkspaceSelection = useActiveWorkspaceSelection();
   const keyboardWorkspaceSelectionRef = useRef<ActiveWorkspaceSelection | null>(null);
 
@@ -182,6 +192,11 @@ export function useKeyboardShortcuts({
           useKeyboardShortcutsStore.getState().setCommandCenterOpen(action.nextOpen);
           return true;
         }
+        case "show-toast":
+          toastRef.current.show(translateRef.current(action.messageKey), {
+            variant: action.variant,
+          });
+          return true;
         case "shortcuts-dialog-toggle":
           useKeyboardShortcutsStore.getState().setShortcutsDialogOpen(action.nextOpen);
           return true;
@@ -201,6 +216,7 @@ export function useKeyboardShortcuts({
           pathname,
           isMobile,
           sidebarShortcutTargets: store.sidebarShortcutWorkspaceTargets,
+          sidebarAttentionTargets: store.sidebarAttentionWorkspaceTargets,
           navigationActiveWorkspace:
             keyboardWorkspaceSelectionRef.current ?? activeWorkspaceSelection,
           commandCenterOpen: store.commandCenterOpen,

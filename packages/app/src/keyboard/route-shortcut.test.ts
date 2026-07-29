@@ -13,11 +13,18 @@ const SIDEBAR_TARGETS = [
   { serverId: "srv", workspaceId: "ws-5" },
 ] as const;
 
+const ATTENTION_TARGETS = [
+  { serverId: "srv", workspaceId: "blocked" },
+  { serverId: "srv", workspaceId: "ready" },
+  { serverId: "srv", workspaceId: "idle" },
+] as const;
+
 function makeCtx(overrides: Partial<ShortcutRoutingContext> = {}): ShortcutRoutingContext {
   return {
     pathname: "/h/srv/workspace/ws-2",
     isMobile: false,
     sidebarShortcutTargets: SIDEBAR_TARGETS,
+    sidebarAttentionTargets: ATTENTION_TARGETS,
     navigationActiveWorkspace: null,
     commandCenterOpen: false,
     shortcutsDialogOpen: false,
@@ -390,6 +397,82 @@ describe("routeKeyboardShortcut — unknown actions", () => {
   it("returns none for unknown action ids", () => {
     expect(
       routeKeyboardShortcut({ action: "totally.made.up", payload: null }, makeCtx()),
+    ).toEqual<ShortcutAction>({ kind: "none" });
+  });
+});
+
+describe("routeKeyboardShortcut — workspace.navigate.attention", () => {
+  it("advances through the attention queue", () => {
+    expect(
+      routeKeyboardShortcut(
+        { action: "workspace.navigate.attention", payload: { delta: 1 } },
+        makeCtx({ navigationActiveWorkspace: { serverId: "srv", workspaceId: "blocked" } }),
+      ),
+    ).toEqual<ShortcutAction>({
+      kind: "navigate-workspace",
+      serverId: "srv",
+      workspaceId: "ready",
+    });
+  });
+
+  it("wraps backward to the end of the queue", () => {
+    expect(
+      routeKeyboardShortcut(
+        { action: "workspace.navigate.attention", payload: { delta: -1 } },
+        makeCtx({ navigationActiveWorkspace: { serverId: "srv", workspaceId: "blocked" } }),
+      ),
+    ).toEqual<ShortcutAction>({
+      kind: "navigate-workspace",
+      serverId: "srv",
+      workspaceId: "idle",
+    });
+  });
+
+  it("starts at the head of the queue when the active workspace is not a candidate", () => {
+    expect(
+      routeKeyboardShortcut(
+        { action: "workspace.navigate.attention", payload: { delta: 1 } },
+        makeCtx({ navigationActiveWorkspace: { serverId: "srv", workspaceId: "working" } }),
+      ),
+    ).toEqual<ShortcutAction>({
+      kind: "navigate-workspace",
+      serverId: "srv",
+      workspaceId: "blocked",
+    });
+  });
+
+  it("toasts when the queue is empty", () => {
+    expect(
+      routeKeyboardShortcut(
+        { action: "workspace.navigate.attention", payload: { delta: 1 } },
+        makeCtx({ sidebarAttentionTargets: [] }),
+      ),
+    ).toEqual<ShortcutAction>({
+      kind: "show-toast",
+      messageKey: "shortcuts.attention.none",
+      variant: "info",
+    });
+  });
+
+  it("toasts when the active workspace is the only candidate", () => {
+    expect(
+      routeKeyboardShortcut(
+        { action: "workspace.navigate.attention", payload: { delta: 1 } },
+        makeCtx({
+          sidebarAttentionTargets: [{ serverId: "srv", workspaceId: "blocked" }],
+          navigationActiveWorkspace: { serverId: "srv", workspaceId: "blocked" },
+        }),
+      ),
+    ).toEqual<ShortcutAction>({
+      kind: "show-toast",
+      messageKey: "shortcuts.attention.none",
+      variant: "info",
+    });
+  });
+
+  it("returns none without a delta payload", () => {
+    expect(
+      routeKeyboardShortcut({ action: "workspace.navigate.attention", payload: null }, makeCtx()),
     ).toEqual<ShortcutAction>({ kind: "none" });
   });
 });

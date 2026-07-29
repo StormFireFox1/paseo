@@ -9,22 +9,31 @@ import type {
   SidebarWorkspaceEntry,
 } from "@/hooks/use-sidebar-workspaces-list";
 import type { SidebarGroupMode } from "@/stores/sidebar-view-store";
+import { buildAttentionQueue } from "@/utils/sidebar-attention-navigation";
 import {
   buildSidebarShortcutSections,
   type SidebarShortcutModel,
   type SidebarShortcutSection,
+  type SidebarShortcutWorkspaceTarget,
 } from "@/utils/sidebar-shortcuts";
 
 export interface SidebarProjection {
   pinnedGroups: PinnedSidebarGroups;
   statusGroups: StatusGroup[];
   shortcutModel: SidebarShortcutModel;
+  attentionQueue: SidebarShortcutWorkspaceTarget[];
 }
 
 export function buildSidebarProjection(input: {
   projects: SidebarProjectEntry[];
   pinnedKeys: PinnedSidebarKeys;
   workspaceEntriesByKey: ReadonlyMap<string, SidebarWorkspaceEntry>;
+  /**
+   * Statuses for the attention queue. Separate from `workspaceEntriesByKey`
+   * because project mode intentionally passes an empty map there, while
+   * attention navigation needs statuses in every group mode.
+   */
+  statusEntriesByKey: ReadonlyMap<string, SidebarWorkspaceEntry>;
   projectNamesByKey: Map<string, string>;
   groupMode: SidebarGroupMode;
   pinnedCollapsed: boolean;
@@ -70,5 +79,9 @@ export function buildSidebarProjection(input: {
     pinnedGroups,
     statusGroups,
     shortcutModel: buildSidebarShortcutSections({ sections }),
+    attentionQueue: buildAttentionQueue({
+      sections,
+      statusEntriesByKey: input.statusEntriesByKey,
+    }),
   };
 }
