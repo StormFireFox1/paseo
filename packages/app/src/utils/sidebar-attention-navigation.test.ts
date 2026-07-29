@@ -111,7 +111,7 @@ describe("buildAttentionQueue", () => {
   it("skips running and archiving workspaces", () => {
     const queue = buildQueue([
       entry("working", "running"),
-      entry("leaving", "needs_input", { archivingAt: "2026-01-01T00:00:00.000Z" }),
+      entry("leaving", "needs_input", { archivingAt: "1970-01-01T00:00:00.000Z" }),
       entry("blocked", "needs_input"),
     ]);
 

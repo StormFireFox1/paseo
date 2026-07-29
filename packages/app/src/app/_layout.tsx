@@ -588,7 +588,7 @@ function SidebarChrome({
   );
   const active = visible && isOpen;
   return (
-    <SidebarModelProvider active={active} attentionNavigation={keyboardShortcutsEnabled}>
+    <SidebarModelProvider active={active}>
       {mounted ? <LeftSidebar active={active} /> : null}
       <WorkspaceShortcutTargetsSubscriber enabled={keyboardShortcutsEnabled} />
     </SidebarModelProvider>
