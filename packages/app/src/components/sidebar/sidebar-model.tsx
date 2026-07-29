@@ -5,6 +5,8 @@ import {
   type SidebarWorkspacesListResult,
 } from "@/hooks/use-sidebar-workspaces-list";
 import { useSidebarWorkspaceEntries } from "@/hooks/use-sidebar-workspace-entries";
+import { useIsCompactFormFactor } from "@/constants/layout";
+import { isNative } from "@/constants/platform";
 import type { StatusGroup } from "@/hooks/sidebar-status-view-model";
 import { usePinnedSidebarKeys, type PinnedSidebarGroups } from "@/hooks/use-sidebar-pins";
 import { useSidebarCollapsedSectionsStore } from "@/stores/sidebar-collapsed-sections-store";
@@ -23,7 +25,6 @@ interface SidebarModel extends SidebarWorkspacesListResult {
   collapsedProjectKeys: ReadonlySet<string>;
   toggleProjectCollapsed: (projectViewKey: string) => void;
   shortcutModel: SidebarShortcutModel;
-  /** Workspaces needing attention, ordered blocked -> ready to review -> idle. */
   attentionQueue: SidebarShortcutWorkspaceTarget[];
 }
 
@@ -32,15 +33,9 @@ const EMPTY_WORKSPACE_ENTRIES = new Map<string, SidebarWorkspaceEntry>();
 
 export function SidebarModelProvider({
   active,
-  attentionNavigation,
   children,
 }: {
   active?: boolean;
-  /**
-   * Keeps workspace statuses subscribed while the sidebar is closed so the
-   * attention-navigation shortcuts can resolve a target without it.
-   */
-  attentionNavigation?: boolean;
   children: ReactNode;
 }) {
   const list = useSidebarWorkspacesList();
@@ -56,9 +51,11 @@ export function SidebarModelProvider({
     (state) => state.toggleProjectCollapsed,
   );
   const isStatusMode = groupMode === "status";
+  const isCompact = useIsCompactFormFactor();
+  const hasKeyboardShortcuts = !isNative && !isCompact;
   const workspaceEntriesByKey = useSidebarWorkspaceEntries(
     list.workspacePlacements,
-    active !== false || isStatusMode || attentionNavigation === true,
+    active !== false || isStatusMode || hasKeyboardShortcuts,
   );
   const projectionWorkspaceEntriesByKey = isStatusMode
     ? workspaceEntriesByKey

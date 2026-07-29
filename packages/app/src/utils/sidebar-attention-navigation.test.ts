@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type {
   SidebarStateBucket,
   SidebarWorkspaceEntry,
+  SidebarWorkspacePlacement,
 } from "@/hooks/use-sidebar-workspaces-list";
 import {
   ATTENTION_TIERS,
@@ -11,15 +12,15 @@ import {
 } from "./sidebar-attention-navigation";
 import type { SidebarShortcutWorkspaceTarget } from "./sidebar-shortcuts";
 
-function placement(workspaceId: string) {
+function placement(workspaceId: string): SidebarWorkspacePlacement {
   return {
     workspaceKey: `host:${workspaceId}`,
     serverId: "host",
     workspaceId,
-    projectKey: "project",
+    projectViewKey: "project",
     projectName: "Project",
-    projectKind: "git" as const,
-    workspaceKind: "worktree" as const,
+    projectKind: "git",
+    workspaceKind: "worktree",
     name: workspaceId,
   };
 }
@@ -31,6 +32,8 @@ function entry(
 ): SidebarWorkspaceEntry {
   return {
     ...placement(workspaceId),
+    workspaceDirectory: "",
+    workspaceDirectoryLabel: "",
     statusBucket,
     statusEnteredAt: null,
     title: null,
@@ -53,7 +56,7 @@ function buildQueue(
   const resolvedSections = sections ?? [{ workspaceIds: entries.map((item) => item.workspaceId) }];
   return buildAttentionQueue({
     sections: resolvedSections.map((section) => {
-      const built: { workspaces: ReturnType<typeof placement>[]; collapsed?: boolean } = {
+      const built: { workspaces: SidebarWorkspacePlacement[]; collapsed?: boolean } = {
         workspaces: section.workspaceIds.map(placement),
       };
       if (section.collapsed !== undefined) {
@@ -111,7 +114,7 @@ describe("buildAttentionQueue", () => {
   it("skips running and archiving workspaces", () => {
     const queue = buildQueue([
       entry("working", "running"),
-      entry("leaving", "needs_input", { archivingAt: "2026-01-01T00:00:00.000Z" }),
+      entry("leaving", "needs_input", { archivingAt: "1970-01-01T00:00:00.000Z" }),
       entry("blocked", "needs_input"),
     ]);
 

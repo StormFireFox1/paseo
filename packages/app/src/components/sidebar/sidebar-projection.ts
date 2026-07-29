@@ -28,11 +28,6 @@ export function buildSidebarProjection(input: {
   projects: SidebarProjectEntry[];
   pinnedKeys: PinnedSidebarKeys;
   workspaceEntriesByKey: ReadonlyMap<string, SidebarWorkspaceEntry>;
-  /**
-   * Statuses for the attention queue. Separate from `workspaceEntriesByKey`
-   * because project mode intentionally passes an empty map there, while
-   * attention navigation needs statuses in every group mode.
-   */
   statusEntriesByKey: ReadonlyMap<string, SidebarWorkspaceEntry>;
   projectNamesByViewKey: Map<string, string>;
   groupMode: SidebarGroupMode;
