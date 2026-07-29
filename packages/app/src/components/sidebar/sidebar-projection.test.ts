@@ -60,16 +60,18 @@ function projectionInput(options?: {
 }) {
   const pinned = makeWorkspace("pinned", "running");
   const unpinned = makeWorkspace("unpinned", "needs_input");
+  const entriesByKey = new Map([
+    [pinned.entry.workspaceKey, pinned.entry],
+    [unpinned.entry.workspaceKey, unpinned.entry],
+  ]);
   return {
     projects: [makeProject([pinned.placement, unpinned.placement])],
     pinnedKeys: {
       pinnedWorkspaceKeys: [pinned.placement.workspaceKey],
       pinnedAtByKey: { [pinned.placement.workspaceKey]: "2026-07-12T12:00:00.000Z" },
     },
-    workspaceEntriesByKey: new Map([
-      [pinned.entry.workspaceKey, pinned.entry],
-      [unpinned.entry.workspaceKey, unpinned.entry],
-    ]),
+    workspaceEntriesByKey: entriesByKey,
+    statusEntriesByKey: entriesByKey,
     projectNamesByViewKey: new Map([["project", "Project"]]),
     groupMode: options?.groupMode ?? ("project" as const),
     pinnedCollapsed: options?.pinnedCollapsed ?? false,
@@ -114,5 +116,12 @@ describe("buildSidebarProjection", () => {
     expect(projection.shortcutModel.shortcutTargets).toEqual([
       { serverId: "srv", workspaceId: "unpinned" },
     ]);
+  });
+
+  it("queues attention candidates by tier and skips running workspaces", () => {
+    const projection = buildSidebarProjection(projectionInput());
+
+    // "pinned" is running, so only the needs_input workspace is a candidate.
+    expect(projection.attentionQueue).toEqual([{ serverId: "srv", workspaceId: "unpinned" }]);
   });
 });

@@ -868,6 +868,11 @@ export const zhCN: TranslationResources = {
       },
     },
   },
+  shortcuts: {
+    attention: {
+      none: "没有需要处理的 workspace",
+    },
+  },
   sidebar: {
     pinned: {
       title: "已置顶",
@@ -1809,6 +1814,8 @@ export const zhCN: TranslationResources = {
         jumpToTab: "跳转到标签",
         previousWorkspace: "上一个 workspace",
         nextWorkspace: "下一个 workspace",
+        previousAttentionWorkspace: "上一个需要处理的 workspace",
+        nextAttentionWorkspace: "下一个需要处理的 workspace",
         previousTab: "上一个标签",
         nextTab: "下一个标签",
         splitPaneRight: "向右拆分窗格",

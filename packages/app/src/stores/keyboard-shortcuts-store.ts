@@ -12,6 +12,8 @@ interface KeyboardShortcutsState {
   showShortcutBadges: boolean;
   /** Sidebar-visible workspace targets (up to 9), in top-to-bottom visual order. */
   sidebarShortcutWorkspaceTargets: SidebarShortcutWorkspaceTarget[];
+  /** Workspaces needing attention, ordered blocked -> ready to review -> idle. */
+  sidebarAttentionWorkspaceTargets: SidebarShortcutWorkspaceTarget[];
 
   setCommandCenterOpen: (open: boolean) => void;
   setShortcutsDialogOpen: (open: boolean) => void;
@@ -19,6 +21,7 @@ interface KeyboardShortcutsState {
   setAltDown: (down: boolean) => void;
   setCmdOrCtrlDown: (down: boolean) => void;
   setSidebarShortcutWorkspaceTargets: (targets: SidebarShortcutWorkspaceTarget[]) => void;
+  setSidebarAttentionWorkspaceTargets: (targets: SidebarShortcutWorkspaceTarget[]) => void;
   resetModifiers: () => void;
 }
 
@@ -53,6 +56,7 @@ export const useKeyboardShortcutsStore = create<KeyboardShortcutsState>((set, ge
   cmdOrCtrlDown: false,
   showShortcutBadges: false,
   sidebarShortcutWorkspaceTargets: [],
+  sidebarAttentionWorkspaceTargets: [],
 
   setCommandCenterOpen: (open) => set({ commandCenterOpen: open }),
   setShortcutsDialogOpen: (open) => set({ shortcutsDialogOpen: open }),
@@ -67,6 +71,8 @@ export const useKeyboardShortcutsStore = create<KeyboardShortcutsState>((set, ge
   },
   setSidebarShortcutWorkspaceTargets: (targets) =>
     set({ sidebarShortcutWorkspaceTargets: targets }),
+  setSidebarAttentionWorkspaceTargets: (targets) =>
+    set({ sidebarAttentionWorkspaceTargets: targets }),
   resetModifiers: () => {
     set({ altDown: false, cmdOrCtrlDown: false });
     updateBadgeTimer(set, get);

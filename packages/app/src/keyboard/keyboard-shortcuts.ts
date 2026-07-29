@@ -139,6 +139,8 @@ const SHORTCUT_HELP_LABEL_KEYS: Record<string, string> = {
   "workspace-tab-jump-index": "settings.shortcuts.help.jumpToTab",
   "workspace-prev": "settings.shortcuts.help.previousWorkspace",
   "workspace-next": "settings.shortcuts.help.nextWorkspace",
+  "workspace-attention-next": "settings.shortcuts.help.nextAttentionWorkspace",
+  "workspace-attention-prev": "settings.shortcuts.help.previousAttentionWorkspace",
   "workspace-tab-prev": "settings.shortcuts.help.previousTab",
   "workspace-tab-next": "settings.shortcuts.help.nextTab",
   "workspace-pane-split-right": "settings.shortcuts.help.splitPaneRight",
@@ -535,6 +537,38 @@ const SHORTCUT_BINDINGS: readonly ShortcutBinding[] = [
       section: "navigation",
       label: "Next workspace",
       keys: ["alt", "]"],
+    },
+  },
+
+  // --- Attention navigation ---
+  // Alt+J/K cycle workspaces that need attention (blocked -> ready to review ->
+  // idle). Alt bindings match by `event.code`, so macOS rewriting Alt+J to a
+  // dead key is a non-issue. Excluded in terminals so Alt+letter still reaches
+  // the shell as a meta key.
+  {
+    id: "workspace-navigate-attention-next-alt-j",
+    action: "workspace.navigate.attention",
+    combo: "Alt+J",
+    when: { commandCenter: false, terminal: false },
+    payload: { type: "delta", delta: 1 },
+    help: {
+      id: "workspace-attention-next",
+      section: "navigation",
+      label: "Next workspace needing attention",
+      keys: ["alt", "j"],
+    },
+  },
+  {
+    id: "workspace-navigate-attention-prev-alt-k",
+    action: "workspace.navigate.attention",
+    combo: "Alt+K",
+    when: { commandCenter: false, terminal: false },
+    payload: { type: "delta", delta: -1 },
+    help: {
+      id: "workspace-attention-prev",
+      section: "navigation",
+      label: "Previous workspace needing attention",
+      keys: ["alt", "k"],
     },
   },
 

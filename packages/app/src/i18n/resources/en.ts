@@ -886,6 +886,11 @@ export const en = {
       },
     },
   },
+  shortcuts: {
+    attention: {
+      none: "No workspaces need attention",
+    },
+  },
   sidebar: {
     pinned: {
       title: "Pinned",
@@ -1841,6 +1846,8 @@ export const en = {
         jumpToTab: "Jump to tab",
         previousWorkspace: "Previous workspace",
         nextWorkspace: "Next workspace",
+        previousAttentionWorkspace: "Previous workspace needing attention",
+        nextAttentionWorkspace: "Next workspace needing attention",
         previousTab: "Previous tab",
         nextTab: "Next tab",
         splitPaneRight: "Split pane right",

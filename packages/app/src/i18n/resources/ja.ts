@@ -887,6 +887,11 @@ export const ja: TranslationResources = {
       },
     },
   },
+  shortcuts: {
+    attention: {
+      none: "対応が必要なワークスペースはありません",
+    },
+  },
   sidebar: {
     pinned: {
       title: "固定済み",
@@ -1847,6 +1852,8 @@ export const ja: TranslationResources = {
         jumpToTab: "タブにジャンプ",
         previousWorkspace: "前のワークスペース",
         nextWorkspace: "次のワークスペース",
+        previousAttentionWorkspace: "対応が必要な前のワークスペース",
+        nextAttentionWorkspace: "対応が必要な次のワークスペース",
         previousTab: "前のタブ",
         nextTab: "次のタブ",
         splitPaneRight: "右にペインを分割",

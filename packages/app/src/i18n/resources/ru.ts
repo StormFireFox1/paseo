@@ -898,6 +898,11 @@ export const ru: TranslationResources = {
       },
     },
   },
+  shortcuts: {
+    attention: {
+      none: "Нет рабочих областей, требующих внимания",
+    },
+  },
   sidebar: {
     pinned: {
       title: "Закреплённые",
@@ -1869,6 +1874,8 @@ export const ru: TranslationResources = {
         jumpToTab: "Перейти на вкладку",
         previousWorkspace: "Предыдущая рабочая область",
         nextWorkspace: "Следующая рабочая область",
+        previousAttentionWorkspace: "Предыдущая рабочая область, требующая внимания",
+        nextAttentionWorkspace: "Следующая рабочая область, требующая внимания",
         previousTab: "Предыдущая вкладка",
         nextTab: "Следующая вкладка",
         splitPaneRight: "Разделить панель справа",

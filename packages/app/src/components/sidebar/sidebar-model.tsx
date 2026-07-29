@@ -9,7 +9,10 @@ import type { StatusGroup } from "@/hooks/sidebar-status-view-model";
 import { usePinnedSidebarKeys, type PinnedSidebarGroups } from "@/hooks/use-sidebar-pins";
 import { useSidebarCollapsedSectionsStore } from "@/stores/sidebar-collapsed-sections-store";
 import { useSidebarViewStore, type SidebarGroupMode } from "@/stores/sidebar-view-store";
-import type { SidebarShortcutModel } from "@/utils/sidebar-shortcuts";
+import type {
+  SidebarShortcutModel,
+  SidebarShortcutWorkspaceTarget,
+} from "@/utils/sidebar-shortcuts";
 import { buildSidebarProjection } from "./sidebar-projection";
 
 interface SidebarModel extends SidebarWorkspacesListResult {
@@ -20,6 +23,8 @@ interface SidebarModel extends SidebarWorkspacesListResult {
   collapsedProjectKeys: ReadonlySet<string>;
   toggleProjectCollapsed: (projectViewKey: string) => void;
   shortcutModel: SidebarShortcutModel;
+  /** Workspaces needing attention, ordered blocked -> ready to review -> idle. */
+  attentionQueue: SidebarShortcutWorkspaceTarget[];
 }
 
 const SidebarModelContext = createContext<SidebarModel | null>(null);
@@ -27,9 +32,15 @@ const EMPTY_WORKSPACE_ENTRIES = new Map<string, SidebarWorkspaceEntry>();
 
 export function SidebarModelProvider({
   active,
+  attentionNavigation,
   children,
 }: {
   active?: boolean;
+  /**
+   * Keeps workspace statuses subscribed while the sidebar is closed so the
+   * attention-navigation shortcuts can resolve a target without it.
+   */
+  attentionNavigation?: boolean;
   children: ReactNode;
 }) {
   const list = useSidebarWorkspacesList();
@@ -47,7 +58,7 @@ export function SidebarModelProvider({
   const isStatusMode = groupMode === "status";
   const workspaceEntriesByKey = useSidebarWorkspaceEntries(
     list.workspacePlacements,
-    active !== false || isStatusMode,
+    active !== false || isStatusMode || attentionNavigation === true,
   );
   const projectionWorkspaceEntriesByKey = isStatusMode
     ? workspaceEntriesByKey
@@ -59,6 +70,7 @@ export function SidebarModelProvider({
         projects: list.projects,
         pinnedKeys,
         workspaceEntriesByKey: projectionWorkspaceEntriesByKey,
+        statusEntriesByKey: workspaceEntriesByKey,
         projectNamesByViewKey: list.projectNamesByViewKey,
         groupMode,
         pinnedCollapsed,
@@ -74,6 +86,7 @@ export function SidebarModelProvider({
       pinnedCollapsed,
       pinnedKeys,
       projectionWorkspaceEntriesByKey,
+      workspaceEntriesByKey,
     ],
   );
   const value = useMemo(
@@ -86,6 +99,7 @@ export function SidebarModelProvider({
       collapsedProjectKeys,
       toggleProjectCollapsed,
       shortcutModel: projection.shortcutModel,
+      attentionQueue: projection.attentionQueue,
     }),
     [
       collapsedProjectKeys,

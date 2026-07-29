@@ -381,6 +381,25 @@ describe("keyboard-shortcuts", () => {
       context: { isMac: true, isDesktop: false },
       action: "workspace.tab.close.current",
     },
+    {
+      name: "matches Alt+J to jump to the next workspace needing attention",
+      event: { key: "j", code: "KeyJ", altKey: true },
+      action: "workspace.navigate.attention",
+      payload: { delta: 1 },
+    },
+    {
+      name: "matches Alt+K to jump to the previous workspace needing attention",
+      event: { key: "k", code: "KeyK", altKey: true },
+      action: "workspace.navigate.attention",
+      payload: { delta: -1 },
+    },
+    {
+      name: "matches Alt+J on macOS when Option substitutes event.key",
+      event: { key: "\u2206", code: "KeyJ", altKey: true },
+      context: { isMac: true },
+      action: "workspace.navigate.attention",
+      payload: { delta: 1 },
+    },
   ];
 
   it.each(matchingCases)(
@@ -398,6 +417,16 @@ describe("keyboard-shortcuts", () => {
   );
 
   const nonMatchingCases: NonMatchingShortcutCase[] = [
+    {
+      name: "ignores Alt+J inside a terminal so it stays a meta key",
+      event: { key: "j", code: "KeyJ", altKey: true },
+      context: { focusScope: "terminal" },
+    },
+    {
+      name: "ignores Alt+K inside a terminal so it stays a meta key",
+      event: { key: "k", code: "KeyK", altKey: true },
+      context: { focusScope: "terminal" },
+    },
     {
       name: "does not keep old Mod+Alt+N binding",
       event: { key: "n", code: "KeyN", metaKey: true, altKey: true },
